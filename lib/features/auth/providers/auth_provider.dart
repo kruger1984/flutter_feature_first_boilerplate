@@ -3,6 +3,8 @@ import 'package:feature_first_example/features/auth/providers/auth_session_revis
 import 'package:feature_first_example/features/auth/repository/auth_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../models/user.dart';
+
 part 'auth_provider.g.dart';
 
 @Riverpod(keepAlive: true)
@@ -38,4 +40,10 @@ class Auth extends _$Auth {
     await ref.read(authRepositoryProvider).logout();
     state = const AsyncData(null);
   }
+
+}
+
+@riverpod
+AppUser? currentUser(Ref ref) {
+  return ref.watch(authProvider).value?.user;
 }

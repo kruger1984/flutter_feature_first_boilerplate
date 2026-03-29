@@ -1,3 +1,4 @@
+import 'package:feature_first_example/core/cache/secure_app_cache.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 /// Persists the bearer token. Used by [DioFactory] and auth repository.
@@ -15,14 +16,26 @@ class SecureAuthTokenStore implements AuthTokenStore {
 
   final FlutterSecureStorage _storage;
 
-  static const _key = 'auth_token';
+  static const _namespace = 'auth';
+  static const _key = 'token';
 
   @override
-  Future<void> clearToken() => _storage.delete(key: _key);
+  Future<void> clearToken() async {
+    final cache = SecureAppCache(_storage);
+    await cache.remove(namespace: _namespace, key: _key);
+  }
 
   @override
-  Future<String?> readToken() => _storage.read(key: _key);
+  Future<String?> readToken() async {
+    final cache = SecureAppCache(_storage);
+    final raw = await cache.getRaw(namespace: _namespace, key: _key);
+    if (raw is String) return raw;
+    return raw?.toString();
+  }
 
   @override
-  Future<void> saveToken(String token) => _storage.write(key: _key, value: token);
+  Future<void> saveToken(String token) async {
+    final cache = SecureAppCache(_storage);
+    await cache.putRaw(namespace: _namespace, key: _key, value: token);
+  }
 }
