@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 
 /// A reusable cache service with namespace isolation and TTL support.
 ///
@@ -74,6 +75,30 @@ abstract class AppCache {
       expiresAt: expiresAt,
     );
     return fromJson(json);
+  }
+
+  /// Cache a computed value, supporting both sync and async callbacks.
+  ///
+  /// Mirrors the old `Cache.remember(...)` behavior.
+  Future<Object?> rememberRaw({
+    required String namespace,
+    required String key,
+    required FutureOr<Object?> Function() compute,
+    Duration? ttl,
+    DateTime? expiresAt,
+  }) async {
+    final cached = await getRaw(namespace: namespace, key: key);
+    if (cached != null) return cached;
+
+    final value = await Future<Object?>.value(compute());
+    await putRaw(
+      namespace: namespace,
+      key: key,
+      value: value,
+      ttl: ttl,
+      expiresAt: expiresAt,
+    );
+    return value;
   }
 }
 

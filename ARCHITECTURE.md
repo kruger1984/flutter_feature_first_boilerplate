@@ -10,7 +10,7 @@ This project follows a strict **Feature-First Architecture** adapted for Flutter
 - **Routing**: `go_router`
 - **Networking**: `dio`
 - **Models & JSON**: `freezed_annotation`, `json_annotation`
-- **Local Storage / Cache**: `shared_preferences`, `flutter_secure_storage`
+- **Local Storage / Cache**: `shared_preferences`, `flutter_secure_storage`, disk cache (JSON files via `path_provider`)
 - **Logging & Error Tracking**: `talker_flutter`
 - **UI & Notifications**: `toastification`, `cached_network_image`, `cupertino_icons`
 
@@ -22,7 +22,7 @@ This project follows a strict **Feature-First Architecture** adapted for Flutter
 lib/
 ├── core/                # Global infrastructure (NO UI)
 │   ├── api/             # Dio client, interceptors (Talker attached)
-│   ├── cache/           # SharedPreferences, SecureStorage initialization
+│   ├── cache/           # SharedPreferences, SecureStorage, File-based cache primitives
 │   └── utils/           # Pure helpers, extensions, validators, global logger
 │
 ├── features/            # Isolated business features (Domain logic & UI)

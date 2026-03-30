@@ -24,18 +24,12 @@ class AuthRepository {
   final Talker _talker;
   final AuthTokenStore _store;
 
-  static const _googleScopes = <String>[
-    'https://www.googleapis.com/auth/userinfo.profile',
-    'https://www.googleapis.com/auth/userinfo.email',
-  ];
+  static const _googleScopes = <String>['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email'];
 
   /// POST body matches common Laravel/Sanctum-style APIs; adjust path/body per backend.
   Future<AuthSession> login({required String email, required String password}) async {
     try {
-      final raw = await _api.post(
-        path: 'auth/login',
-        body: {'email': email, 'password': password},
-      );
+      final raw = await _api.post(path: 'auth/login', body: {'email': email, 'password': password});
       final map = raw as Map<String, dynamic>;
       final token = map['token'] as String? ?? map['access_token'] as String?;
       if (token == null || token.isEmpty) {
@@ -117,21 +111,12 @@ class AuthRepository {
   }
 
   /// Common helper: exchange provider token for app token, persist, and load user.
-  Future<AuthSession> loginWithSocialToken({
-    required String provider,
-    required String token,
-  }) async {
+  Future<AuthSession> loginWithSocialToken({required String provider, required String token}) async {
     try {
       _talker.info('AuthRepository: loginWithSocialToken started (provider=$provider)');
 
       // Legacy-compatible endpoint; adjust path/query if your backend differs.
-      final raw = await _api.get(
-        path: 'social-auth/$provider/callback',
-        queryParameters: <String, dynamic>{
-          'provider': provider,
-          'token': token,
-        },
-      );
+      final raw = await _api.get(path: 'social-auth/$provider/callback', queryParameters: <String, dynamic>{'provider': provider, 'token': token});
 
       final map = raw as Map<String, dynamic>;
       final appToken = map['token'] as String?;
@@ -205,9 +190,5 @@ class AuthRepository {
 
 @Riverpod(keepAlive: true)
 AuthRepository authRepository(Ref ref) {
-  return AuthRepository(
-    ref.watch(apiClientProvider),
-    ref.watch(talkerProvider),
-    ref.watch(authTokenStoreProvider),
-  );
+  return AuthRepository(ref.watch(apiClientProvider), ref.watch(talkerProvider), ref.watch(authTokenStoreProvider));
 }
