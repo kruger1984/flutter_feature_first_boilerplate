@@ -46,3 +46,7 @@ app.*.map.json
 
 # Local plans and drafts
 PLAN.md
+
+# Generated Files
+*.g.dart
+*.freezed.dart
