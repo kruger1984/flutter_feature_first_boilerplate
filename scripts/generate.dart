@@ -1,36 +1,104 @@
 import 'dart:io';
+import 'package:path/path.dart' as p;
 
 void main(List<String> args) {
-  if (args.length < 2 || args[0] != 'feature') {
-    print('❌ Usage: dart run scripts/generate.dart feature <feature_name>');
-    print('💡 Example: dart run scripts/generate.dart feature habits');
+  if (args.isEmpty) {
+    _printUsage();
     return;
   }
 
-  final name = args[1].toLowerCase();
-  generateFeature(name);
+  final command = args[0].toLowerCase();
+  switch (command) {
+    case 'feature':
+      if (args.length != 2) {
+        _printUsage();
+        return;
+      }
+      generateFeature(args[1]);
+      return;
+    case 'service':
+      if (args.length != 2) {
+        _printUsage();
+        return;
+      }
+      generateService(args[1]);
+      return;
+    case 'help':
+    case '--help':
+    case '-h':
+      _printUsage();
+      return;
+    default:
+      print('❌ Unknown command: "$command"');
+      _printUsage();
+      return;
+  }
 }
 
-void generateFeature(String name) {
-  final basePath = 'lib/features/$name';
+void _printUsage() {
+  print('Usage:');
+  print('  dart run scripts/generate.dart feature <feature_name>');
+  print('  dart run scripts/generate.dart service <service_name>');
+  print('');
+  print('Examples:');
+  print('  dart run scripts/generate.dart feature habits');
+  print('  dart run scripts/generate.dart service auth');
+}
+
+String _normalizeName(String input) => input.trim().toLowerCase();
+
+void generateFeature(String featureName) {
+  final name = _normalizeName(featureName);
+  if (name.isEmpty) {
+    _printUsage();
+    return;
+  }
+
+  final basePath = p.join('lib', 'features', name);
 
   // 1. Create directories
-  Directory('$basePath/providers').createSync(recursive: true);
-  Directory('$basePath/repository').createSync(recursive: true);
-  Directory('$basePath/models').createSync(recursive: true);
-  Directory('$basePath/widgets').createSync(recursive: true);
+  Directory(p.join(basePath, 'providers')).createSync(recursive: true);
+  Directory(p.join(basePath, 'repository')).createSync(recursive: true);
+  Directory(p.join(basePath, 'models')).createSync(recursive: true);
+  Directory(p.join(basePath, 'widgets')).createSync(recursive: true);
 
   // 2. Create files
-  createFile('$basePath/${name}_screen.dart', screenTemplate(name));
-  createFile('$basePath/providers/${name}_provider.dart', providerTemplate(name));
-  createFile('$basePath/repository/${name}_repository.dart', repositoryTemplate(name));
-  createFile('$basePath/models/${name}_model.dart', modelTemplate(name));
+  createFile(p.join(basePath, '${name}_screen.dart'), screenTemplate(name));
+  createFile(p.join(basePath, 'providers', '${name}_provider.dart'), providerTemplate(name));
+  createFile(
+    p.join(basePath, 'repository', '${name}_repository.dart'),
+    repositoryTemplate(name),
+  );
+  createFile(p.join(basePath, 'models', '${name}_model.dart'), modelTemplate(name));
 
   print('✅ Feature "$name" successfully generated at $basePath!');
+  print('🚀 Don\'t forget to run build_runner: dart run build_runner build -d');
 }
 
 void createFile(String path, String content) {
-  File(path).writeAsStringSync(content);
+  final file = File(path);
+  if (file.existsSync()) {
+    print('⚠️ Skipped (already exists): $path');
+    return;
+  }
+  file.writeAsStringSync(content);
+}
+
+void generateService(String serviceName) {
+  final name = _normalizeName(serviceName);
+  if (name.isEmpty) {
+    _printUsage();
+    return;
+  }
+
+  final directoryPath = p.join('lib', 'core', 'services');
+  final filePath = p.join(directoryPath, '${name}_service.dart');
+
+  Directory(directoryPath).createSync(recursive: true);
+  createFile(filePath, serviceTemplate(name));
+
+  print('✅ Service "${_toPascalCase(name)}Service" generated at $filePath');
+  print('🚀 Don\'t forget to run build_runner: dart run build_runner build -d');
 }
 
 // ==========================================
@@ -153,6 +221,34 @@ class ${pascalCase}Model {
   const ${pascalCase}Model({required this.id});
 
   final String id;
+}
+''';
+}
+
+String serviceTemplate(String name) {
+  final className = _toPascalCase(name);
+  return '''
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:talker/talker.dart';
+import '../utils/talker_pod.dart';
+
+part '${name}_service.g.dart';
+
+class ${className}Service {
+  ${className}Service(this._talker);
+
+  final Talker _talker;
+
+  void init() {
+    _talker.info('${className}Service initialized');
+  }
+}
+
+@Riverpod(keepAlive: true)
+${className}Service ${name}Service(Ref ref) {
+  return ${className}Service(
+    ref.watch(talkerProvider),
+  );
 }
 ''';
 }

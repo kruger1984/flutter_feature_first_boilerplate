@@ -65,7 +65,25 @@ dart run scripts/generate.dart feature auth
 
 ---
 
-## ⚡ Step 4: Code Generation
+## 🧩 Step 4: Generate a Core Service
+
+Generate a core service under `lib/core/services/` (Riverpod + Talker boilerplate).
+
+**Command:**
+```bash
+# Usage: dart run scripts/generate.dart service <name>
+dart run scripts/generate.dart service auth
+```
+
+**File created:**
+- `lib/core/services/auth_service.dart`
+
+**Note (legacy):**
+- You can still run `dart run scripts/generate_service.dart auth`, but it now forwards to the unified generator.
+
+---
+
+## ⚡ Step 5: Code Generation
 
 Since we use `freezed` and `riverpod_generator`, you must run the build runner to generate the `.g.dart` and `.freezed.dart` files.
 
@@ -109,6 +127,17 @@ chmod +x scripts/run_tests.sh
 
 The HTML report will be available at `coverage/html/index.html`.
 
+---
+
+## 🌐 Step 7: Environment Configuration
+
+The project uses `--dart-define` to manage environment variables like API URLs. This allows you to switch between Dev and Prod environments without changing the code.
+
+### ⚙️ Setting up Android Studio / IntelliJ
+1. Click on the **Main.dart** dropdown (near the Run button) -> **Edit Configurations...**.
+2. In the **Additional run args** field, paste:
+   ```text
+   --dart-define=API_BASE_URL=[https://api.yourdomain.com/](https://api.yourdomain.com/)
 ---
 
 ## 📂 Project Structure Overview

@@ -32,7 +32,7 @@ final class AuthProvider extends $AsyncNotifierProvider<Auth, AuthSession?> {
   Auth create() => Auth();
 }
 
-String _$authHash() => r'00b21f7c7228c584e3aca56d77b88b2c76d23855';
+String _$authHash() => r'774d5dbf158f19ba29ff6041ff36722f299770d6';
 
 abstract class _$Auth extends $AsyncNotifier<AuthSession?> {
   FutureOr<AuthSession?> build();
@@ -51,3 +51,44 @@ abstract class _$Auth extends $AsyncNotifier<AuthSession?> {
     element.handleCreate(ref, build);
   }
 }
+
+@ProviderFor(currentUser)
+final currentUserProvider = CurrentUserProvider._();
+
+final class CurrentUserProvider
+    extends $FunctionalProvider<AppUser?, AppUser?, AppUser?>
+    with $Provider<AppUser?> {
+  CurrentUserProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'currentUserProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$currentUserHash();
+
+  @$internal
+  @override
+  $ProviderElement<AppUser?> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  AppUser? create(Ref ref) {
+    return currentUser(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AppUser? value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AppUser?>(value),
+    );
+  }
+}
+
+String _$currentUserHash() => r'40ac6649b831e3332f946d1517835f673d24b003';
