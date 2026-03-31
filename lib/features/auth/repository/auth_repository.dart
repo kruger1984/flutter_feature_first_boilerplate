@@ -186,6 +186,22 @@ class AuthRepository {
   Future<void> logout() async {
     await _store.clearToken();
   }
+
+  Future<AppUser> getUser() async {
+    try {
+      final raw = await _api.get(path: 'profile');
+      final map = raw as Map<String, dynamic>;
+      final item = map['item'] ?? map['user'] ?? map['data'];
+
+      if (item is Map<String, dynamic>) {
+        return AppUser.fromJson(item);
+      }
+      throw ApiException('Неправильний формат даних профілю', 0);
+    } catch (e, st) {
+      _talker.error('Помилка отримання профілю', e, st);
+      rethrow;
+    }
+  }
 }
 
 @Riverpod(keepAlive: true)

@@ -3,6 +3,7 @@ import 'package:feature_first_example/features/auth/providers/auth_session_revis
 import 'package:feature_first_example/features/auth/repository/auth_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../core/utils/talker_pod.dart';
 import '../models/user.dart';
 
 part 'auth_provider.g.dart';
@@ -22,7 +23,7 @@ class Auth extends _$Auth {
     });
   }
 
-   Future<void> loginWithGoogle() async {
+  Future<void> loginWithGoogle() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       return await ref.read(authRepositoryProvider).loginWithGoogle();
@@ -41,6 +42,18 @@ class Auth extends _$Auth {
     state = const AsyncData(null);
   }
 
+  Future<void> refreshUser() async {
+    final currentSession = state.value;
+    if (currentSession == null) return;
+
+    try {
+      final updatedUser = await ref.read(authRepositoryProvider).getUser();
+
+      state = AsyncData(currentSession.copyWith(user: updatedUser));
+    } catch (e, st) {
+      ref.read(talkerProvider).error('Не вдалося оновити юзера після покупки', e, st);
+    }
+  }
 }
 
 @riverpod

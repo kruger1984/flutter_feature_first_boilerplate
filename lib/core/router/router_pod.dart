@@ -5,6 +5,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../features/auth/home_screen.dart';
 import '../../features/auth/login_screen.dart';
 import '../../features/auth/providers/auth_provider.dart';
+import '../../features/payment/payment_screen.dart';
+import '../../features/payment/thanks_screen.dart';
 
 part 'router_pod.g.dart';
 
@@ -16,7 +18,8 @@ GoRouter router(Ref ref) {
 
   return GoRouter(
     initialLocation: '/',
-    debugLogDiagnostics: true, // Допомагає бачити переходи в консолі (через Talker)
+    debugLogDiagnostics: true,
+    // Допомагає бачити переходи в консолі (через Talker)
 
     // Головна логіка редіректів (заміна AuthGate)
     redirect: (context, state) {
@@ -46,10 +49,7 @@ GoRouter router(Ref ref) {
 
     routes: [
       // Екран логіну
-      GoRoute(
-        path: '/login',
-        builder: (context, state) => const LoginScreen(),
-      ),
+      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
 
       // Головний екран (Home)
       GoRoute(
@@ -68,11 +68,18 @@ GoRouter router(Ref ref) {
         builder: (context, state) => const ProfileScreen(),
       ),
       */
+      GoRoute(path: '/payment', builder: (context, state) => const PaymentScreen()),
+
+      GoRoute(
+        path: '/payment/thanks',
+        builder: (context, state) {
+          final message = state.extra as String? ?? 'Дякуємо за покупку!';
+          return ThanksScreen(message: message);
+        },
+      ),
     ],
 
     // Обробка помилок навігації (якщо ввели неправильний URL)
-    errorBuilder: (context, state) => Scaffold(
-      body: Center(child: Text('Сторінку не знайдено: ${state.error}')),
-    ),
+    errorBuilder: (context, state) => Scaffold(body: Center(child: Text('Сторінку не знайдено: ${state.error}'))),
   );
 }
