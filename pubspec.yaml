@@ -54,6 +54,10 @@ dependencies:
   firebase_core: ^4.6.0
   in_app_purchase: ^3.2.3
   toastification: ^3.0.3
+  slang: ^4.14.0
+  slang_flutter: ^4.14.0
+  flutter_localizations:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:

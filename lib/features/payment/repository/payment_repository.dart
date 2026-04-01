@@ -41,7 +41,7 @@ class PaymentRepository {
       await _cache.remove(namespace: _purchaseNamespace, key: key);
     }
 
-    _talker.debug('🤑 Запит продуктів (Purchases) з кешем');
+    _talker.debug('🤑 request products (Purchases) with cache');
 
     return await _cache.rememberJson<List<StoreProduct>>(
       namespace: _purchaseNamespace,
@@ -100,7 +100,7 @@ class PaymentRepository {
       );
       return true;
     } catch (e, st) {
-      _talker.error('Помилка активації промокоду: $code', e, st);
+      _talker.error('Error code activating: $code', e, st);
       rethrow;
     }
   }

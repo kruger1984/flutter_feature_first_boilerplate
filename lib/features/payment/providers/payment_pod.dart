@@ -22,7 +22,7 @@ class PaymentController extends _$PaymentController {
     _subscription = _iap.purchaseStream.listen(
       _onPurchaseUpdate,
       onError: (error) {
-        ref.read(talkerProvider).error('Помилка IAP стріму: $error');
+        ref.read(talkerProvider).error('IAP Stream Error: $error');
       },
     );
 
@@ -38,7 +38,7 @@ class PaymentController extends _$PaymentController {
 
     final isAvailable = await _iap.isAvailable();
     if (!isAvailable) {
-      talker.warning('IAP недоступні на цьому пристрої');
+      talker.warning('IAP is not available on this device');
       return [];
     }
 
@@ -50,7 +50,7 @@ class PaymentController extends _$PaymentController {
 
     final response = await _iap.queryProductDetails(productIds);
     if (response.error != null) {
-      talker.error('Помилка queryProductDetails: ${response.error}');
+      talker.error('queryProductDetails Error: ${response.error}');
       return [];
     }
 
@@ -60,7 +60,7 @@ class PaymentController extends _$PaymentController {
         final storeDetails = response.productDetails.firstWhere((pd) => pd.id == backendProduct.storeId);
         payableProducts.add(PayableProduct(storeProduct: backendProduct, productDetails: storeDetails));
       } catch (_) {
-        talker.warning('Стор не повернув продукт: ${backendProduct.storeId}');
+        talker.warning('Store did not return product: ${backendProduct.storeId}');
       }
     }
 
@@ -76,7 +76,7 @@ class PaymentController extends _$PaymentController {
     try {
       await _iap.restorePurchases();
     } catch (e, st) {
-      ref.read(talkerProvider).error('Помилка відновлення', e, st);
+      ref.read(talkerProvider).error('Restore Purchases Error', e, st);
     }
   }
 
@@ -85,14 +85,14 @@ class PaymentController extends _$PaymentController {
     final repo = ref.read(paymentRepositoryProvider);
 
     for (var purchase in purchases) {
-      talker.debug('IAP Статус: ${purchase.status} | ID: ${purchase.productID}');
+      talker.debug('IAP Status: ${purchase.status} | ID: ${purchase.productID}');
 
       if (purchase.status == PurchaseStatus.purchased || purchase.status == PurchaseStatus.restored) {
         try {
           final result = await repo.checkSubscription(productId: purchase.productID, token: purchase.verificationData.serverVerificationData, resetCache: true);
 
           if (result.status == ValidationStatus.active) {
-            talker.info('✅ Купівля успішна та підтверджена сервером!');
+             talker.info('✅ Purchase successful and verified by server!');
 
             ref.read(authProvider.notifier).refreshUser();
 
@@ -101,18 +101,18 @@ class PaymentController extends _$PaymentController {
             }
 
             final isRestore = purchase.status == PurchaseStatus.restored;
-            final message = isRestore ? 'Покупки успішно відновлено!' : 'Дякуємо за покупку!';
+            final message = isRestore ? 'Purchases successfully restored!' : 'Thank you for your purchase!';
 
             ref.read(routerProvider).go('/payment/thanks', extra: message);
 
           } else {
-            talker.warning('⚠️ Сервер повернув статус: ${result.status}');
+            talker.warning('⚠️ Server returned status: ${result.status}');
             if (purchase.pendingCompletePurchase) {
               await _iap.completePurchase(purchase);
             }
           }
         } catch (e, st) {
-          talker.error('❌ Помилка валідації чеку', e, st);
+          talker.error('❌ Receipt validation error', e, st);
           if (purchase.pendingCompletePurchase) {
             await _iap.completePurchase(purchase);
           }

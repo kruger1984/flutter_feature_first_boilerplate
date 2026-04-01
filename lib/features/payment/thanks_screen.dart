@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+
 class ThanksScreen extends StatelessWidget {
   const ThanksScreen({
     super.key,
@@ -11,6 +12,7 @@ class ThanksScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -19,7 +21,7 @@ class ThanksScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Велика іконка успіху
+
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
@@ -34,7 +36,6 @@ class ThanksScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 32),
 
-                // Текст (Сюди прилетить "Дякуємо за покупку!" або "Покупки відновлено!")
                 Text(
                   message,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -53,11 +54,9 @@ class ThanksScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 48),
 
-                // Кнопка повернення на головний екран
                 FilledButton(
                   onPressed: () {
-                    // Використовуємо go('/'), щоб очистити історію
-                    // і юзер не міг повернутися на екран оплати кнопкою "Назад"
+
                     context.go('/');
                   },
                   style: FilledButton.styleFrom(
