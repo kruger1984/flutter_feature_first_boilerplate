@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:feature_first_example/core/providers/bootstrap_providers.dart';
 import 'package:feature_first_example/core/router/router_pod.dart';
 import 'package:feature_first_example/core/utils/talker_pod.dart';
+import 'package:feature_first_example/shared/themes/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,7 +31,9 @@ class App extends ConsumerWidget {
       talker: talker,
       child: MaterialApp.router(
         title: 'Feature-first',
-        theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal), useMaterial3: true),
+        theme: AppTheme.light,
+        darkTheme: AppTheme.dark,
+        themeMode: ThemeMode.system,
         routerConfig: router,
       ),
     );

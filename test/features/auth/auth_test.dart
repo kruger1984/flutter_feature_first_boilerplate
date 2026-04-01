@@ -23,7 +23,7 @@ void main() {
     final store = MemoryAuthTokenStore();
     final dio = Dio(BaseOptions(baseUrl: 'http://localhost/'));
     DioAdapter(dio: dio, matcher: const UrlRequestMatcher(matchMethod: true))
-      ..onPost('auth/login', (server) {
+      .onPost('auth/login', (server) {
         return server.reply(200, {
           'token': 't1',
           'user': {'id': '1', 'email': 'a@b.com'},
@@ -54,7 +54,7 @@ void main() {
     final store = MemoryAuthTokenStore();
     final dio = Dio(BaseOptions(baseUrl: 'http://localhost/'));
     DioAdapter(dio: dio, matcher: const UrlRequestMatcher(matchMethod: true))
-      ..onPost('auth/login', (server) {
+      .onPost('auth/login', (server) {
         return server.reply(200, {'token': 'tok'});
       });
 
@@ -83,7 +83,7 @@ void main() {
 
     final dio = Dio(BaseOptions(baseUrl: 'http://localhost/'));
     DioAdapter(dio: dio, matcher: const UrlRequestMatcher(matchMethod: true))
-      ..onGet('profile', (server) {
+      .onGet('profile', (server) {
         return server.reply(200, {
           'item': {'id': '42', 'email': 'restored@example.com'},
         });

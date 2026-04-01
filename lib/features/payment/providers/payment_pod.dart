@@ -19,7 +19,6 @@ class PaymentController extends _$PaymentController {
 
   @override
   FutureOr<List<PayableProduct>> build() async {
-    // 1. Налаштовуємо слухача стріму покупок
     _subscription = _iap.purchaseStream.listen(
       _onPurchaseUpdate,
       onError: (error) {
@@ -27,16 +26,13 @@ class PaymentController extends _$PaymentController {
       },
     );
 
-    // Гарантуємо, що стрім закриється, якщо провайдер колись знищиться
     ref.onDispose(() {
       _subscription?.cancel();
     });
 
-    // 2. Завантажуємо продукти
     return _loadProducts();
   }
 
-  /// Завантажує продукти з бекенду, а потім отримує їхні ціни з Apple/Google
   Future<List<PayableProduct>> _loadProducts() async {
     final talker = ref.read(talkerProvider);
 
@@ -46,22 +42,18 @@ class PaymentController extends _$PaymentController {
       return [];
     }
 
-    // Отримуємо з бекенду
     final backendProducts = await ref.read(paymentRepositoryProvider).getPurchases(resetCache: true);
 
     if (backendProducts.isEmpty) return [];
 
-    // Збираємо ID для поточного магазину
     final productIds = backendProducts.map((e) => e.storeId).toSet();
 
-    // Отримуємо ціни зі стору
     final response = await _iap.queryProductDetails(productIds);
     if (response.error != null) {
       talker.error('Помилка queryProductDetails: ${response.error}');
       return [];
     }
 
-    // Поєднуємо бекенд і стор в один список
     final List<PayableProduct> payableProducts = [];
     for (final backendProduct in backendProducts) {
       try {
@@ -75,14 +67,11 @@ class PaymentController extends _$PaymentController {
     return payableProducts;
   }
 
-  /// Виклик покупки (UI натискає на кнопку)
   Future<void> buyProduct(ProductDetails product) async {
     final purchaseParam = PurchaseParam(productDetails: product);
-    // Для підписок та невідновлюваних покупок використовується buyNonConsumable
     await _iap.buyNonConsumable(purchaseParam: purchaseParam);
   }
 
-  /// Відновлення покупок
   Future<void> restorePurchases() async {
     try {
       await _iap.restorePurchases();
@@ -91,7 +80,6 @@ class PaymentController extends _$PaymentController {
     }
   }
 
-  /// Головний обробник стріму (заміна старого listener)
   Future<void> _onPurchaseUpdate(List<PurchaseDetails> purchases) async {
     final talker = ref.read(talkerProvider);
     final repo = ref.read(paymentRepositoryProvider);
@@ -101,25 +89,20 @@ class PaymentController extends _$PaymentController {
 
       if (purchase.status == PurchaseStatus.purchased || purchase.status == PurchaseStatus.restored) {
         try {
-          // 1. Валідація на бекенді
           final result = await repo.checkSubscription(productId: purchase.productID, token: purchase.verificationData.serverVerificationData, resetCache: true);
 
           if (result.status == ValidationStatus.active) {
             talker.info('✅ Купівля успішна та підтверджена сервером!');
 
-            // 2. Оновлюємо дані юзера в додатку
             ref.read(authProvider.notifier).refreshUser();
 
-            // 3. Завершуємо транзакцію в сторі
             if (purchase.pendingCompletePurchase) {
               await _iap.completePurchase(purchase);
             }
 
-            // 4. Формуємо повідомлення
             final isRestore = purchase.status == PurchaseStatus.restored;
             final message = isRestore ? 'Покупки успішно відновлено!' : 'Дякуємо за покупку!';
 
-            // 5. Переходимо на екран "Дякуємо" і передаємо туди наше повідомлення через `extra`
             ref.read(routerProvider).go('/payment/thanks', extra: message);
 
           } else {
@@ -131,7 +114,6 @@ class PaymentController extends _$PaymentController {
         } catch (e, st) {
           talker.error('❌ Помилка валідації чеку', e, st);
           if (purchase.pendingCompletePurchase) {
-            // Навіть якщо наш сервак впав, завершуємо покупку, щоб гроші не повернулися
             await _iap.completePurchase(purchase);
           }
         }

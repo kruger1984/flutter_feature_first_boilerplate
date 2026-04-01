@@ -10,7 +10,6 @@ enum SubscriptionPeriod {
   @JsonValue('p8M') p8M,
   @JsonValue('p1Y') p1Y;
 
-  // Тимчасовий геттер. Пізніше зможеш підключити сюди tr() або Intl
   String get label => name.toUpperCase();
 }
 

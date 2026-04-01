@@ -11,7 +11,6 @@ class NotificationService {
 
   final Talker _talker;
 
-  /// Показати успішний тост
   void showSuccess({
     required BuildContext context,
     required String title,
@@ -23,12 +22,11 @@ class NotificationService {
       type: ToastificationType.success,
       title: title,
       description: description,
-      iconData: Icons.check_circle_outline_rounded, // Стандартна іконка
+      iconData: Icons.check_circle_outline_rounded,
       primaryColor: Colors.green,
     );
   }
 
-  /// Показати помилковий тост
   void showError({
     required BuildContext context,
     required String title,
@@ -40,12 +38,11 @@ class NotificationService {
       type: ToastificationType.error,
       title: title,
       description: description,
-      iconData: Icons.error_outline_rounded, // Стандартна іконка
+      iconData: Icons.error_outline_rounded,
       primaryColor: Colors.red,
     );
   }
 
-  /// Загальна реалізація з затемненням (Barrier)
   void _showWithBarrier({
     required BuildContext context,
     required ToastificationType type,
@@ -83,7 +80,7 @@ class NotificationService {
       ),
       description: description != null ? Text(description) : null,
       alignment: Alignment.topCenter,
-      // Використовуємо стандартний віджет Icon
+
       icon: Icon(iconData, color: primaryColor, size: 28),
       primaryColor: primaryColor,
       backgroundColor: const Color(0xFF89BBBE),
@@ -91,7 +88,7 @@ class NotificationService {
       showProgressBar: false,
       callbacks: ToastificationCallbacks(
         onDismissed: (_) {
-          // Гарантовано видаляємо бар'єр, коли тост зникає
+
           if (barrierEntry.mounted) barrierEntry.remove();
         },
       ),

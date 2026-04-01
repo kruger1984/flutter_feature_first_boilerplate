@@ -30,7 +30,6 @@ class PaymentRepository {
   static const _purchaseNamespace = 'payment_purchase';
   static const _checkNamespace = 'payment_check';
 
-  /// Отримує список продуктів з бекенду
   Future<List<StoreProduct>> getPurchases({
     int page = 0,
     int limit = 99,
@@ -49,13 +48,12 @@ class PaymentRepository {
       key: key,
       ttl: const Duration(hours: 3),
       fromJson: (json) {
-        // Парсимо масив items
         final map = json as Map<String, dynamic>;
         final items = map['items'] as List<dynamic>? ?? [];
         return items.map((e) => StoreProduct.fromJson(e as Map<String, dynamic>)).toList();
       },
       fetchJson: () async {
-        // ВИПРАВЛЕНО: додано path:
+
         return await _api.get(
           path: 'purchases',
           queryParameters: {'page': page, 'limit': limit, 'filter[is_active]': 1},
@@ -64,7 +62,6 @@ class PaymentRepository {
     );
   }
 
-  /// Валідує купівлю на сервері
   Future<PaymentValidation> checkSubscription({
     required String productId,
     required String token,
@@ -83,7 +80,6 @@ class PaymentRepository {
       ttl: const Duration(minutes: 180),
       fromJson: (json) => PaymentValidation.fromJson(json as Map<String, dynamic>),
       fetchJson: () async {
-        // ВИПРАВЛЕНО: додано path: та замінено queryParameters на body:
         return await _api.post(
           path: 'subscriptions/check',
           body: {
@@ -96,10 +92,8 @@ class PaymentRepository {
     );
   }
 
-  /// Застосовує промокод
   Future<bool> applyCoupon({required String code}) async {
     try {
-      // ВИПРАВЛЕНО: додано path: та замінено queryParameters на body:
       await _api.post(
         path: 'users/subscriptions/coupon',
         body: {'code': code},
