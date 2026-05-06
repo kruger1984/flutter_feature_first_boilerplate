@@ -82,6 +82,14 @@ echo "📱 Android"
 # build.gradle
 for f in android/app/build.gradle android/app/build.gradle.kts; do
     [[ -f "$f" ]] || continue
+
+    echo "   🔧 Updating $f"
+
+    # Для applicationId і namespace (працює і для Groovy, і для KTS)
+    sed_inplace "s|applicationId *= *[\"'].*[\"']|applicationId = \"$NEW_PACKAGE\"|g" "$f"
+    sed_inplace "s|namespace *= *[\"'].*[\"']|namespace = \"$NEW_PACKAGE\"|g" "$f"
+
+    # Додаткові варіанти
     sed_inplace "s|applicationId [\"'].*[\"']|applicationId \"$NEW_PACKAGE\"|g" "$f"
     sed_inplace "s|namespace [\"'].*[\"']|namespace \"$NEW_PACKAGE\"|g" "$f"
 done
@@ -152,10 +160,20 @@ replace_line web/manifest.json '"short_name": ".*"' "\"short_name\": \"$NEW_APP_
 # DESKTOP
 # ============================================
 echo "🖥 Desktop"
-for f in windows/CMakeLists.txt linux/CMakeLists.txt; do
-    [[ -f "$f" ]] || continue
-    replace_line "$f" 'set\(APPLICATION_ID ".*"\)' "set(APPLICATION_ID \"$NEW_PACKAGE\")"
-done
+
+# Linux
+if [[ -f "linux/CMakeLists.txt" ]]; then
+    echo "   🔧 Updating linux/CMakeLists.txt"
+    sed_inplace 's|set(APPLICATION_ID ".*")|set(APPLICATION_ID "'"$NEW_PACKAGE"'")|g' linux/CMakeLists.txt
+    sed_inplace "s|set(APPLICATION_ID .*|set(APPLICATION_ID \"$NEW_PACKAGE\")|g" linux/CMakeLists.txt
+fi
+
+# Windows
+if [[ -f "windows/CMakeLists.txt" ]]; then
+    echo "   🔧 Updating windows/CMakeLists.txt"
+    sed_inplace 's|set(APPLICATION_ID ".*")|set(APPLICATION_ID "'"$NEW_PACKAGE"'")|g' windows/CMakeLists.txt
+    sed_inplace "s|set(APPLICATION_ID .*|set(APPLICATION_ID \"$NEW_PACKAGE\")|g" windows/CMakeLists.txt
+fi
 
 # ============================================
 # PUBSPEC + Dart imports
