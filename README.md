@@ -22,7 +22,8 @@ First, clone the repository and navigate to the project root:
 ```bash
 git clone <your-repo-url> my_new_app
 cd my_new_app
-flutter pub get
+chmod +x scripts/setup.sh
+./scripts/setup.sh
 ```
 
 ---
