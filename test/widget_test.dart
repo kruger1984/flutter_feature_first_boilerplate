@@ -1,4 +1,5 @@
 import 'package:feature_first_example/core/providers/bootstrap_providers.dart';
+import 'package:feature_first_example/i18n/strings.g.dart';
 import 'package:feature_first_example/main.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,7 +20,9 @@ void main() {
           sharedPreferencesProvider.overrideWithValue(prefs),
           authTokenStoreProvider.overrideWithValue(MemoryAuthTokenStore()),
         ],
-        child: const App(),
+        child: TranslationProvider(
+          child: const App(),
+        ),
       ),
     );
 

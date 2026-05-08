@@ -45,8 +45,20 @@ GoRouter router(Ref ref) {
       GoRoute(
         path: '/',
         builder: (context, state) {
-          final session = authState.asData!.value!;
-          return AuthHomeScreen(session: session);
+          return authState.when(
+            loading: () => const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            ),
+            error: (e, _) => Scaffold(
+              body: Center(child: Text('Error: $e')),
+            ),
+            data: (session) {
+              if (session == null) {
+                return const SizedBox();
+              }
+              return AuthHomeScreen(session: session);
+            },
+          );
         },
       ),
 
