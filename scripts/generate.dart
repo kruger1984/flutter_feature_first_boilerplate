@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:path/path.dart' as p;
+import 'package:yaml/yaml.dart';
 
 void main(List<String> args) {
   if (args.isEmpty) {
@@ -33,6 +34,25 @@ void main(List<String> args) {
       _printUsage();
       return;
   }
+}
+
+String _getProjectName() {
+  final pubspec = File('pubspec.yaml');
+
+  if (!pubspec.existsSync()) {
+    throw Exception('pubspec.yaml not found');
+  }
+
+  final content = pubspec.readAsStringSync();
+  final yamlMap = loadYaml(content);
+
+  final name = yamlMap['name'];
+
+  if (name == null || name.toString().trim().isEmpty) {
+    throw Exception('Project name not found in pubspec.yaml');
+  }
+
+  return name.toString();
 }
 
 void _printUsage() {
@@ -118,7 +138,7 @@ class ${pascalCase}Screen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Watch the state from the provider
-    final state = ref.watch(${name}NotifierProvider);
+    final state = ref.watch(${name}Provider);
 
     return SafeArea(
       child: state.when(
@@ -184,10 +204,12 @@ class ${pascalCase}Notifier extends _\$${pascalCase}Notifier {
 
 String repositoryTemplate(String name) {
   final pascalCase = _toPascalCase(name);
+  final package = _getProjectName();
+
   return '''
-import 'package:feature_first_example/core/api/api_client.dart';
-import 'package:feature_first_example/core/api/http_pod.dart';
-import 'package:feature_first_example/core/utils/talker_pod.dart';
+import 'package:$package/core/api/api_client.dart';
+import 'package:$package/core/api/http_pod.dart';
+import 'package:$package/core/utils/talker_pod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:talker/talker.dart';
 
